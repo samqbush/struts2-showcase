@@ -223,6 +223,62 @@
                     </excludes>
                 </configuration>
             </plugin>
+            <plugin>
+                <!-- Step 1 : Pull library sources -->
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <version>3.1.1</version>
+                <executions>
+                    <execution>
+                        <id>cx-download-sources</id>
+                        <phase>integration-test</phase>
+                        <goals>
+                            <goal>sources</goal>
+                        </goals>
+                        <configuration>
+                            <classifier>sources</classifier>
+                            <!-- add groupIds for necessary source code -->
+                            <includeGroupIds>org.apache.struts</includeGroupIds>
+                        </configuration>
+                    </execution>
+                    <!-- Step 2 : Unpack library sources -->
+                    <execution>
+                        <id>cx-unpack-sources</id>
+                        <phase>integration-test</phase>
+                        <goals>
+                            <goal>unpack-dependencies</goal>
+                        </goals>
+                        <configuration>
+                            <classifier>sources</classifier>
+                            <!-- add groupIds for necessary source code -->
+                            <includeGroupIds>org.apache.struts</includeGroupIds>
+                            <outputAbsoluteArtifactFilename>true</outputAbsoluteArtifactFilename>
+                            <outputDirectory>${dependency.source.dir}</outputDirectory>
+                            <useSubDirectoryPerArtifact>true</useSubDirectoryPerArtifact>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <!-- Step 3 : Add library sources to build source -->
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <version>3.0.0</version>
+                <executions>
+                    <execution>
+                        <id>cx-add-dependency-source</id>
+                        <phase>integration-test</phase>
+                        <goals>
+                            <goal>add-source</goal>
+                        </goals>
+                        <configuration>
+                            <sources>
+                                <source>${dependency.source.dir}</source>
+                            </sources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
 
         <resources>
@@ -241,5 +297,6 @@
     </build>
     <properties>
     	<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <dependency.source.dir>${project.basedir}/dependency/libs</dependency.source.dir>
     </properties>
 </project>
